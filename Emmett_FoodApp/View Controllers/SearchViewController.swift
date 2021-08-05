@@ -7,58 +7,65 @@
 
 import UIKit
 
-class SearchViewController: ViewController,  UITextFieldDelegate {
-
-    @IBOutlet weak var searchBar: UITextField!
-
+class SearchViewController: ViewController, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate {
     
-    var possiblResults = ["Chicken with Rice", "Chicken Parmesian", "Grilled Chicken"]
+    @IBOutlet weak var searchBar: UISearchBar!
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        searchBar.delegate = self
-
+    @IBOutlet weak var searchResults: UITableView!
+    
+    //Determines whether or not the user is actively searching
+    var searchActive = false
+    
+    //All possible results from search
+    var possibleResults = ["Chicken With Rice", "Chicken Parmesan", "Grilled Chicken"]
+    //Results that will show based on user search
+    var resultsShown: [String] = []
+    var possibleImages = ["Chicken With Rice", "Chicken Parmesan", "Grilled Chicken"]
+    var imagesShown: [String] = []
+    
+    override     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchActive = true;
     }
 
-    func printResults(){
-        for possibleResult in possiblResults{
-            if(possibleResult.contains(searchBar.text!)){
-               
-            }
-        }
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchActive = false;
     }
-}
-/*
-import UIKit
 
-class TableViewController: ViewController, UITableViewDataSource, UITableViewDelegate{
-
-    //@IBOutlet weak var searchCell: UITableView!
-    
-    
-    
-    var results = ["Chicken with Rice", "Chicken Parmesian", "Grilled Chicken"]
-    var images = ["chickenWRice", "chickenParm", "grilledChicken"]
-
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        searchCell.dataSource = self
-        searchCell.delegate = self
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchActive = false;
     }
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchActive = false;
+    }
+   
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        self.searchResults.reloadData()
+           resultsShown = possibleResults.filter({ (text) -> Bool in
+            let tmp: NSString = text as NSString
+            let range = tmp.range(of: searchText, options: NSString.CompareOptions.caseInsensitive)
+               return range.location != NSNotFound
+           })
+       }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int)->Int{
-            return results.count
+            return resultsShown.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell1 =  tableView.dequeueReusableCell(withIdentifier: "cell1")
-        cell1?.textLabel?.text = results[indexPath.row]
-        for image in images{
-            cell1?.imageView?.image = UIImage(named: image)
-        }
+        let cell1 =  tableView.dequeueReusableCell(withIdentifier: "Cell")
+        //Populating results of search
+        cell1?.textLabel?.text = resultsShown[indexPath.row]
+        cell1?.imageView?.image = UIImage(named: imagesShown[indexPath.row])
+        
         return cell1!
+    }func viewDidLoad() {
+        super.viewDidLoad()
+        searchBar.delegate = self
+        searchResults.delegate = self
+        searchResults.dataSource = self
     }
+   
 
 }
-*/
+
